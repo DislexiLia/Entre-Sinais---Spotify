@@ -1,0 +1,6 @@
+{
+  "name": "Spotify · Entre Sinais",
+  "description": "Experiência musical completa inspirada no Spotify com busca real, reprodução de áudio, biblioteca pessoal e a campanha de acessibilidade Entre Sinais em Libras.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
