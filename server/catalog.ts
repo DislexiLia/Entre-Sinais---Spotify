@@ -45,6 +45,28 @@ function toHighResSpotifyCover(url: string): string {
   return url.replace('ab67616d00001e02', 'ab67616d0000b273');
 }
 
+function toHighResItunesCover(url: string): string {
+  if (!url) return '';
+  return url.replace(/\/\d+x\d+bb\./, '/600x600bb.');
+}
+
+async function fetchJsonSafe(url: string): Promise<any | null> {
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+      },
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    if (!text || text.trim().startsWith('<')) return null;
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 export const SPOTIFY_FEATURED_ALBUM_IDS = [
   '37oi5fAM46AtRr3bXNj8M3', // Memórias Póstumas - Jão
   '15llRNuI2Ng20iaY9SQgsY', // De Primeira - Marina Sena
@@ -58,6 +80,7 @@ export const SPOTIFY_ARTIST_MAP = {
     name: 'Jão',
     wikiTitle: 'Jão',
     deezerId: 5297266,
+    itunesId: 1219490224,
     genre: 'Pop · Indie Pop Brasileiro',
     imageUrl: 'https://image-cdn-ak.spotifycdn.com/image/ab6761610000e5ebe4b5c3d3af19c3d107f29c69',
     accentColor: '#7f1d1d',
@@ -97,6 +120,7 @@ export const SPOTIFY_ARTIST_MAP = {
     name: 'Marina Sena',
     wikiTitle: 'Marina_Sena',
     deezerId: 12194225,
+    itunesId: 1528748148,
     genre: 'Pop · MPB · Brasilidades',
     imageUrl: 'https://image-cdn-ak.spotifycdn.com/image/ab6761610000e5eba1f1da49af37bc62284c9cc9',
     accentColor: '#682000',
@@ -135,6 +159,7 @@ export const SPOTIFY_ARTIST_MAP = {
     name: 'LUDMILLA',
     wikiTitle: 'Ludmilla',
     deezerId: 5832541,
+    itunesId: 911035687,
     genre: 'Funk · Pop · Pagode',
     imageUrl: 'https://image-cdn-fa.spotifycdn.com/image/ab6761610000e5eb4eadf41038c8f5f3938121b9',
     accentColor: '#481810',
@@ -170,10 +195,10 @@ export const SPOTIFY_ARTIST_MAP = {
 } as const;
 
 export const EXTRA_CURATED_ARTISTS = [
-  { id: 'dz-artist-9151334', deezerId: 9151334, name: 'Liniker', wikiTitle: 'Liniker', genre: 'MPB · Soul · Black Music', featuredAlbumId: 'dz-album-713384901', accentColor: '#7c2d12' },
-  { id: 'dz-artist-10286020', deezerId: 10286020, name: 'Luísa Sonza', wikiTitle: 'Luísa_Sonza', genre: 'Pop · Funk · R&B', featuredAlbumId: 'dz-album-480890205', accentColor: '#3f3f46' },
-  { id: 'dz-artist-262833', deezerId: 262833, name: 'IZA', wikiTitle: 'Iza_(cantora)', genre: 'Pop · R&B · Soul', featuredAlbumId: 'dz-album-469639335', accentColor: '#713f12' },
-  { id: 'dz-artist-4390053', deezerId: 4390053, name: 'Anitta', wikiTitle: 'Anitta', genre: 'Pop · Funk Brasileiro · Reggaeton', featuredAlbumId: 'dz-album-309370177', accentColor: '#312e81' },
+  { id: 'dz-artist-9151334', deezerId: 9151334, itunesId: 1094575365, name: 'Liniker', wikiTitle: 'Liniker', genre: 'MPB · Soul · Black Music', featuredAlbumId: 'dz-album-713384901', accentColor: '#7c2d12' },
+  { id: 'dz-artist-10286020', deezerId: 10286020, itunesId: 1265093204, name: 'Luísa Sonza', wikiTitle: 'Luísa_Sonza', genre: 'Pop · Funk · R&B', featuredAlbumId: 'dz-album-480890205', accentColor: '#3f3f46' },
+  { id: 'dz-artist-262833', deezerId: 262833, itunesId: 1264011906, name: 'IZA', wikiTitle: 'Iza_(cantora)', genre: 'Pop · R&B · Soul', featuredAlbumId: 'dz-album-469639335', accentColor: '#713f12' },
+  { id: 'dz-artist-4390053', deezerId: 4390053, itunesId: 608804198, name: 'Anitta', wikiTitle: 'Anitta', genre: 'Pop · Funk Brasileiro · Reggaeton', featuredAlbumId: 'dz-album-309370177', accentColor: '#312e81' },
 ];
 
 const LIBRAS_TRACK_OVERRIDES: Record<string, string> = {
@@ -341,17 +366,82 @@ export async function fetchWikipediaBio(title: string): Promise<string | null> {
   const cached = getCached<string>(cacheKey);
   if (cached) return cached;
 
-  try {
-    const res = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`, {
-      headers: { 'User-Agent': 'SpotifyEntreSinaisApp/1.0' },
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data?.type === 'disambiguation' || !data?.extract) return null;
-    return setCached(cacheKey, data.extract, 1000 * 60 * 60);
-  } catch {
-    return null;
-  }
+  const data = await fetchJsonSafe(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+  if (!data || data?.type === 'disambiguation' || !data?.extract) return null;
+  return setCached(cacheKey, data.extract, 1000 * 60 * 60);
+}
+
+function mapItunesTrack(t: any): Track {
+  const coverUrl = toHighResItunesCover(t.artworkUrl100 || t.artworkUrl60 || '');
+  const artistName = t.artistName || 'Artista';
+  const artistId = t.artistId ? `it-artist-${t.artistId}` : `search-artist-${encodeURIComponent(artistName)}`;
+  const albumId = t.collectionId ? `it-album-${t.collectionId}` : `search-album-${encodeURIComponent(t.collectionName || '')}`;
+  return {
+    id: `it-track-${t.trackId}`,
+    title: t.trackName,
+    artistName,
+    artistId,
+    albumName: t.collectionName || 'Single',
+    albumId,
+    coverUrl,
+    durationMs: Number(t.trackTimeMillis) || 180000,
+    previewUrl: t.previewUrl || null,
+    isExplicit: t.trackExplicitness === 'explicit',
+    spotifyUrl: `https://open.spotify.com/search/${encodeURIComponent(`${t.trackName} ${artistName}`)}`,
+    trackNumber: t.trackNumber || undefined,
+  };
+}
+
+function mapItunesAlbum(a: any): Album {
+  const coverUrl = toHighResItunesCover(a.artworkUrl100 || a.artworkUrl60 || '');
+  const artistName = a.artistName || 'Artista';
+  return {
+    id: `it-album-${a.collectionId}`,
+    title: a.collectionName,
+    artistName,
+    artistId: a.artistId ? `it-artist-${a.artistId}` : 'unknown',
+    coverUrl,
+    releaseYear: (a.releaseDate || '').slice(0, 4) || '—',
+    releaseDate: a.releaseDate || undefined,
+    recordType: (a.trackCount || 0) <= 3 ? 'single' : 'album',
+    genre: a.primaryGenreName || 'Música',
+    totalTracks: a.trackCount || undefined,
+    spotifyUrl: `https://open.spotify.com/search/${encodeURIComponent(`${a.collectionName} ${artistName}`)}`,
+  };
+}
+
+export async function fetchItunesAlbum(itunesId: number): Promise<Album | null> {
+  const cacheKey = `it-album:${itunesId}`;
+  const cached = getCached<Album>(cacheKey);
+  if (cached) return cached;
+
+  const data = await fetchJsonSafe(`https://itunes.apple.com/lookup?id=${itunesId}&entity=song&country=BR`);
+  if (!data?.results?.length) return null;
+
+  const col = data.results.find((r: any) => r.wrapperType === 'collection');
+  if (!col) return null;
+
+  const mappedArtistId =
+    Object.values(SPOTIFY_ARTIST_MAP).find((a) => a.itunesId === Number(col.artistId))?.id ||
+    EXTRA_CURATED_ARTISTS.find((a) => a.itunesId === Number(col.artistId))?.id ||
+    `it-artist-${col.artistId}`;
+
+  const tracks: Track[] = data.results
+    .filter((r: any) => r.wrapperType === 'track' && r.kind === 'song')
+    .map((t: any, idx: number) => ({
+      ...mapItunesTrack(t),
+      artistId: mappedArtistId,
+      albumId: `it-album-${col.collectionId}`,
+      trackNumber: t.trackNumber || idx + 1,
+    }));
+
+  const album: Album = {
+    ...mapItunesAlbum(col),
+    artistId: mappedArtistId,
+    tracks,
+  };
+
+  return setCached(cacheKey, album);
 }
 
 function mapDeezerTrack(t: any, fallbackCover = ''): Track {
@@ -407,53 +497,46 @@ export async function fetchDeezerAlbum(deezerId: number): Promise<Album | null> 
   const cached = getCached<Album>(cacheKey);
   if (cached) return cached;
 
-  try {
-    const res = await fetch(`https://api.deezer.com/album/${deezerId}`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data || data.error) return null;
+  const data = await fetchJsonSafe(`https://api.deezer.com/album/${deezerId}`);
+  if (!data || data.error) return null;
 
-    const coverUrl = data.cover_xl || data.cover_big || data.cover_medium || '';
-    const genre = data.genres?.data?.map((g: any) => g.name).slice(0, 2).join(' · ') || 'Música';
-    const mappedArtistId =
-      Object.values(SPOTIFY_ARTIST_MAP).find((a) => a.deezerId === Number(data.artist?.id))?.id ||
-      `dz-artist-${data.artist?.id}`;
+  const coverUrl = data.cover_xl || data.cover_big || data.cover_medium || '';
+  const genre = data.genres?.data?.map((g: any) => g.name).slice(0, 2).join(' · ') || 'Música';
+  const mappedArtistId =
+    Object.values(SPOTIFY_ARTIST_MAP).find((a) => a.deezerId === Number(data.artist?.id))?.id ||
+    `dz-artist-${data.artist?.id}`;
 
-    const tracks: Track[] = (data.tracks?.data || []).map((t: any, idx: number) => ({
-      ...mapDeezerTrack(
-        {
-          ...t,
-          album: { id: data.id, title: data.title, cover_big: coverUrl },
-          artist: t.artist || data.artist,
-        },
-        coverUrl
-      ),
-      artistId: mappedArtistId,
-      albumId: `dz-album-${data.id}`,
-      trackNumber: idx + 1,
-    }));
+  const tracks: Track[] = (data.tracks?.data || []).map((t: any, idx: number) => ({
+    ...mapDeezerTrack(
+      {
+        ...t,
+        album: { id: data.id, title: data.title, cover_big: coverUrl },
+        artist: t.artist || data.artist,
+      },
+      coverUrl
+    ),
+    artistId: mappedArtistId,
+    albumId: `dz-album-${data.id}`,
+    trackNumber: idx + 1,
+  }));
 
-    const album: Album = {
-      id: `dz-album-${data.id}`,
-      title: data.title,
-      artistName: data.artist?.name || 'Artista',
-      artistId: mappedArtistId,
-      coverUrl,
-      releaseYear: (data.release_date || '').slice(0, 4) || '—',
-      releaseDate: data.release_date,
-      recordType: data.record_type === 'single' ? 'single' : data.record_type === 'ep' ? 'ep' : 'album',
-      genre,
-      totalTracks: data.nb_tracks || tracks.length,
-      deezerId: Number(data.id),
-      spotifyUrl: `https://open.spotify.com/search/${encodeURIComponent(`${data.title} ${data.artist?.name || ''}`)}`,
-      tracks,
-    };
+  const album: Album = {
+    id: `dz-album-${data.id}`,
+    title: data.title,
+    artistName: data.artist?.name || 'Artista',
+    artistId: mappedArtistId,
+    coverUrl,
+    releaseYear: (data.release_date || '').slice(0, 4) || '—',
+    releaseDate: data.release_date,
+    recordType: data.record_type === 'single' ? 'single' : data.record_type === 'ep' ? 'ep' : 'album',
+    genre,
+    totalTracks: data.nb_tracks || tracks.length,
+    deezerId: Number(data.id),
+    spotifyUrl: `https://open.spotify.com/search/${encodeURIComponent(`${data.title} ${data.artist?.name || ''}`)}`,
+    tracks,
+  };
 
-    return setCached(cacheKey, album);
-  } catch (err) {
-    console.error('Error fetching Deezer album', deezerId, err);
-    return null;
-  }
+  return setCached(cacheKey, album);
 }
 
 export async function fetchDeezerPlaylist(deezerId: number): Promise<Playlist | null> {
@@ -461,32 +544,25 @@ export async function fetchDeezerPlaylist(deezerId: number): Promise<Playlist | 
   const cached = getCached<Playlist>(cacheKey);
   if (cached) return cached;
 
-  try {
-    const res = await fetch(`https://api.deezer.com/playlist/${deezerId}`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data || data.error) return null;
+  const data = await fetchJsonSafe(`https://api.deezer.com/playlist/${deezerId}`);
+  if (!data || data.error) return null;
 
-    const tracks: Track[] = (data.tracks?.data || []).slice(0, 40).map((t: any, idx: number) => ({
-      ...mapDeezerTrack(t),
-      trackNumber: idx + 1,
-    }));
+  const tracks: Track[] = (data.tracks?.data || []).slice(0, 40).map((t: any, idx: number) => ({
+    ...mapDeezerTrack(t),
+    trackNumber: idx + 1,
+  }));
 
-    const playlist: Playlist = {
-      id: `dz-playlist-${data.id}`,
-      title: data.title,
-      description: data.description || (data.creator?.name ? `Seleção por ${data.creator.name}` : 'Playlist em destaque'),
-      coverUrl: data.picture_xl || data.picture_big || data.picture_medium || tracks[0]?.coverUrl || '',
-      creator: data.creator?.name || 'Spotify',
-      trackCount: data.nb_tracks || tracks.length,
-      tracks,
-    };
+  const playlist: Playlist = {
+    id: `dz-playlist-${data.id}`,
+    title: data.title,
+    description: data.description || (data.creator?.name ? `Seleção por ${data.creator.name}` : 'Playlist em destaque'),
+    coverUrl: data.picture_xl || data.picture_big || data.picture_medium || tracks[0]?.coverUrl || '',
+    creator: data.creator?.name || 'Spotify',
+    trackCount: data.nb_tracks || tracks.length,
+    tracks,
+  };
 
-    return setCached(cacheKey, playlist);
-  } catch (err) {
-    console.error('Error fetching Deezer playlist', deezerId, err);
-    return null;
-  }
+  return setCached(cacheKey, playlist);
 }
 
 export async function getCuratedPlaylists(): Promise<Playlist[]> {
@@ -590,9 +666,10 @@ export async function getArtistById(artistId: string): Promise<Artist | null> {
   const cleanSpotifyId = artistId.replace(/^sp-artist-/, '');
   const curated = SPOTIFY_ARTIST_MAP[cleanSpotifyId as keyof typeof SPOTIFY_ARTIST_MAP];
   if (curated) {
-    const [spTop, dzAlbumsRes, spFeaturedAlbums, playlists] = await Promise.all([
+    const [spTop, dzAlbumsRes, itAlbumsRes, spFeaturedAlbums, playlists] = await Promise.all([
       fetchSpotifyEmbedArtistTopTracks(curated.spotifyId),
-      fetch(`https://api.deezer.com/artist/${curated.deezerId}/albums?limit=25`).then((r) => r.json()).catch(() => ({ data: [] })),
+      fetchJsonSafe(`https://api.deezer.com/artist/${curated.deezerId}/albums?limit=25`),
+      fetchJsonSafe(`https://itunes.apple.com/lookup?id=${curated.itunesId}&entity=album&limit=20&country=BR`),
       Promise.all(
         curated.curatedAlbums
           .filter((a) => a.id.startsWith('sp-album-'))
@@ -604,7 +681,6 @@ export async function getArtistById(artistId: string): Promise<Artist | null> {
     const featuredValid = spFeaturedAlbums.filter(Boolean) as Album[];
     const featuredCover = featuredValid[0]?.coverUrl || spTop.imageUrl || curated.imageUrl;
 
-    // Enrich top tracks with album cover if matched in featured albums
     const featuredTrackByUri = new Map<string, Track>();
     for (const alb of featuredValid) {
       for (const tr of alb.tracks || []) {
@@ -623,11 +699,18 @@ export async function getArtistById(artistId: string): Promise<Artist | null> {
       artistId: curated.id,
     }));
 
-    // Merge curated Spotify albums first, deduplicating matching titles
+    const itAlbumsRaw: Album[] = (itAlbumsRes?.results || [])
+      .filter((r: any) => r.wrapperType === 'collection')
+      .map((a: any) => ({
+        ...mapItunesAlbum(a),
+        artistId: curated.id,
+      }));
+
+    const extraReleases = dzAlbumsRaw.length > 0 ? dzAlbumsRaw : itAlbumsRaw;
     const seenTitles = new Set(featuredValid.map((a) => normalizeText(a.title)));
     const allReleases = [
       ...featuredValid,
-      ...dzAlbumsRaw.filter((a) => !seenTitles.has(normalizeText(a.title))),
+      ...extraReleases.filter((a) => !seenTitles.has(normalizeText(a.title))),
     ];
 
     const albums = allReleases.filter((a) => a.recordType !== 'single');
@@ -663,7 +746,73 @@ export async function getArtistById(artistId: string): Promise<Artist | null> {
     };
   }
 
-  // 2. Dynamic Deezer artist lookup
+  // 2. Dynamic iTunes artist lookup
+  if (artistId.startsWith('it-artist-')) {
+    const itunesId = Number(artistId.replace(/^it-artist-/, ''));
+    if (!Number.isFinite(itunesId)) return null;
+
+    const cacheKey = `full-it-artist:${itunesId}`;
+    const cached = getCached<Artist>(cacheKey);
+    if (cached) return cached;
+
+    const [songsRes, albumsRes] = await Promise.all([
+      fetchJsonSafe(`https://itunes.apple.com/lookup?id=${itunesId}&entity=song&limit=15&country=BR`),
+      fetchJsonSafe(`https://itunes.apple.com/lookup?id=${itunesId}&entity=album&limit=20&country=BR`),
+    ]);
+
+    const artistInfo = songsRes?.results?.find((r: any) => r.wrapperType === 'artist') ||
+      albumsRes?.results?.find((r: any) => r.wrapperType === 'artist');
+    if (!artistInfo) return null;
+
+    const extraMeta = EXTRA_CURATED_ARTISTS.find((a) => a.itunesId === itunesId);
+    const wikiBio = await fetchWikipediaBio(extraMeta?.wikiTitle || artistInfo.artistName);
+
+    const topTracks: Track[] = (songsRes?.results || [])
+      .filter((r: any) => r.wrapperType === 'track' && r.kind === 'song')
+      .slice(0, 10)
+      .map((t: any, idx: number) => ({
+        ...mapItunesTrack(t),
+        artistId: `it-artist-${itunesId}`,
+        trackNumber: idx + 1,
+      }));
+
+    const allAlbums: Album[] = (albumsRes?.results || [])
+      .filter((r: any) => r.wrapperType === 'collection')
+      .map((a: any) => ({
+        ...mapItunesAlbum(a),
+        artistId: `it-artist-${itunesId}`,
+      }));
+
+    const albums = allAlbums.filter((a) => a.recordType !== 'single');
+    const singles = allAlbums.filter((a) => a.recordType === 'single');
+
+    const artist: Artist = {
+      id: `it-artist-${itunesId}`,
+      name: artistInfo.artistName,
+      imageUrl: topTracks[0]?.coverUrl || allAlbums[0]?.coverUrl || '',
+      genre: extraMeta?.genre || artistInfo.primaryGenreName || 'Música',
+      bio: wikiBio || `${artistInfo.artistName} com ${albums.length} álbuns e ${singles.length} singles catalogados.`,
+      spotifyUrl: `https://open.spotify.com/search/${encodeURIComponent(artistInfo.artistName)}`,
+      accentColor: extraMeta?.accentColor || '#1f2937',
+      topTracks,
+      albums,
+      singles,
+      videoclipes: topTracks.slice(0, 3).map((t) => ({
+        title: t.title,
+        description: `Videoclipe oficial de ${t.title}, faixa do álbum ${t.albumName}.`,
+        youtubeQuery: `${artistInfo.artistName} ${t.title} clipe oficial`,
+      })),
+      relatedArtists: Object.values(SPOTIFY_ARTIST_MAP).map((other) => ({
+        id: other.id,
+        name: other.name,
+        imageUrl: other.imageUrl,
+      })),
+    };
+
+    return setCached(cacheKey, artist);
+  }
+
+  // 3. Dynamic Deezer artist lookup (with iTunes fallback if Deezer blocks cloud IP)
   const cleanDzId = artistId.replace(/^dz-artist-/, '');
   const numericId = Number(cleanDzId);
   if (!Number.isFinite(numericId)) return null;
@@ -672,72 +821,78 @@ export async function getArtistById(artistId: string): Promise<Artist | null> {
   const cached = getCached<Artist>(cacheKey);
   if (cached) return cached;
 
-  try {
-    const [artistRes, topRes, albumsRes, relatedRes] = await Promise.all([
-      fetch(`https://api.deezer.com/artist/${numericId}`).then((r) => r.json()),
-      fetch(`https://api.deezer.com/artist/${numericId}/top?limit=12`).then((r) => r.json()),
-      fetch(`https://api.deezer.com/artist/${numericId}/albums?limit=24`).then((r) => r.json()),
-      fetch(`https://api.deezer.com/artist/${numericId}/related?limit=6`).then((r) => r.json()),
-    ]);
+  const extraMeta = EXTRA_CURATED_ARTISTS.find((a) => a.deezerId === numericId);
+  const [artistRes, topRes, albumsRes, relatedRes] = await Promise.all([
+    fetchJsonSafe(`https://api.deezer.com/artist/${numericId}`),
+    fetchJsonSafe(`https://api.deezer.com/artist/${numericId}/top?limit=12`),
+    fetchJsonSafe(`https://api.deezer.com/artist/${numericId}/albums?limit=24`),
+    fetchJsonSafe(`https://api.deezer.com/artist/${numericId}/related?limit=6`),
+  ]);
 
-    if (!artistRes || artistRes.error) return null;
-
-    const extraMeta = EXTRA_CURATED_ARTISTS.find((a) => a.deezerId === numericId);
-    const wikiBio = await fetchWikipediaBio(extraMeta?.wikiTitle || artistRes.name);
-
-    const topTracks: Track[] = (topRes?.data || []).map((t: any, idx: number) => ({
-      ...mapDeezerTrack(t),
-      artistId: `dz-artist-${numericId}`,
-      trackNumber: idx + 1,
-    }));
-
-    const allAlbums: Album[] = (albumsRes?.data || []).map((a: any) => ({
-      ...mapDeezerAlbum({ ...a, artist: { id: numericId, name: artistRes.name } }),
-      artistId: `dz-artist-${numericId}`,
-    }));
-
-    const albums = allAlbums.filter((a) => a.recordType !== 'single');
-    const singles = allAlbums.filter((a) => a.recordType === 'single');
-    const fansCount = Number(artistRes.nb_fan || 0);
-
-    const artist: Artist = {
-      id: `dz-artist-${numericId}`,
-      name: artistRes.name,
-      imageUrl: artistRes.picture_xl || artistRes.picture_big || artistRes.picture_medium || '',
-      genre: extraMeta?.genre || 'Música',
-      bio:
-        wikiBio ||
-        `${artistRes.name} soma ${fansCount.toLocaleString('pt-BR')} fãs na plataforma, com ${albums.length} álbuns e ${singles.length} singles catalogados.`,
-      fans: fansCount,
-      monthlyListenersLabel: `${fansCount.toLocaleString('pt-BR')} fãs seguem este artista`,
-      deezerId: numericId,
-      spotifyUrl: `https://open.spotify.com/search/${encodeURIComponent(artistRes.name)}`,
-      accentColor: extraMeta?.accentColor || '#1f2937',
-      topTracks,
-      albums,
-      singles,
-      videoclipes: topTracks.slice(0, 3).map((t) => ({
-        title: t.title,
-        description: `Videoclipe oficial de ${t.title}, faixa do álbum ${t.albumName}.`,
-        youtubeQuery: `${artistRes.name} ${t.title} clipe oficial`,
-      })),
-      relatedArtists: (relatedRes?.data || []).slice(0, 6).map((ra: any) => ({
-        id: `dz-artist-${ra.id}`,
-        name: ra.name,
-        imageUrl: ra.picture_big || ra.picture_medium || '',
-      })),
-    };
-
-    return setCached(cacheKey, artist);
-  } catch (err) {
-    console.error('Error fetching Deezer artist', numericId, err);
+  if (!artistRes || artistRes.error) {
+    if (extraMeta?.itunesId) {
+      const itFallback = await getArtistById(`it-artist-${extraMeta.itunesId}`);
+      if (itFallback) {
+        return setCached(cacheKey, { ...itFallback, id: `dz-artist-${numericId}`, name: extraMeta.name });
+      }
+    }
     return null;
   }
+
+  const wikiBio = await fetchWikipediaBio(extraMeta?.wikiTitle || artistRes.name);
+
+  const topTracks: Track[] = (topRes?.data || []).map((t: any, idx: number) => ({
+    ...mapDeezerTrack(t),
+    artistId: `dz-artist-${numericId}`,
+    trackNumber: idx + 1,
+  }));
+
+  const allAlbums: Album[] = (albumsRes?.data || []).map((a: any) => ({
+    ...mapDeezerAlbum({ ...a, artist: { id: numericId, name: artistRes.name } }),
+    artistId: `dz-artist-${numericId}`,
+  }));
+
+  const albums = allAlbums.filter((a) => a.recordType !== 'single');
+  const singles = allAlbums.filter((a) => a.recordType === 'single');
+  const fansCount = Number(artistRes.nb_fan || 0);
+
+  const artist: Artist = {
+    id: `dz-artist-${numericId}`,
+    name: artistRes.name,
+    imageUrl: artistRes.picture_xl || artistRes.picture_big || artistRes.picture_medium || '',
+    genre: extraMeta?.genre || 'Música',
+    bio:
+      wikiBio ||
+      `${artistRes.name} soma ${fansCount.toLocaleString('pt-BR')} fãs na plataforma, com ${albums.length} álbuns e ${singles.length} singles catalogados.`,
+    fans: fansCount,
+    monthlyListenersLabel: `${fansCount.toLocaleString('pt-BR')} fãs seguem este artista`,
+    deezerId: numericId,
+    spotifyUrl: `https://open.spotify.com/search/${encodeURIComponent(artistRes.name)}`,
+    accentColor: extraMeta?.accentColor || '#1f2937',
+    topTracks,
+    albums,
+    singles,
+    videoclipes: topTracks.slice(0, 3).map((t) => ({
+      title: t.title,
+      description: `Videoclipe oficial de ${t.title}, faixa do álbum ${t.albumName}.`,
+      youtubeQuery: `${artistRes.name} ${t.title} clipe oficial`,
+    })),
+    relatedArtists: (relatedRes?.data || []).slice(0, 6).map((ra: any) => ({
+      id: `dz-artist-${ra.id}`,
+      name: ra.name,
+      imageUrl: ra.picture_big || ra.picture_medium || '',
+    })),
+  };
+
+  return setCached(cacheKey, artist);
 }
 
 export async function getAlbumById(albumId: string): Promise<Album | null> {
   if (albumId.startsWith('sp-album-') || /^[A-Za-z0-9]{22}$/.test(albumId)) {
     return fetchSpotifyEmbedAlbum(albumId);
+  }
+  if (albumId.startsWith('it-album-')) {
+    return fetchItunesAlbum(Number(albumId.replace(/^it-album-/, '')));
   }
   if (albumId.startsWith('dz-album-')) {
     return fetchDeezerAlbum(Number(albumId.replace(/^dz-album-/, '')));
@@ -792,7 +947,7 @@ export async function searchCatalog(query: string, type = 'all'): Promise<Search
 
   const nq = normalizeText(trimmed);
 
-  // 1. Curated local catalog matching (our 3 featured Spotify albums + artists + playlists)
+  // 1. Curated local catalog matching
   const [featuredAlbums, playlists] = await Promise.all([
     Promise.all(SPOTIFY_FEATURED_ALBUM_IDS.map((id) => fetchSpotifyEmbedAlbum(id))),
     getCuratedPlaylists(),
@@ -823,37 +978,45 @@ export async function searchCatalog(query: string, type = 'all'): Promise<Search
     (p) => normalizeText(p.title).includes(nq) || normalizeText(p.description).includes(nq)
   );
 
-  // 2. Live Deezer search in parallel for universal Spotify-like search
+  // 2. Live search in parallel (Deezer + iTunes fallback so Render always returns results)
   const shouldFetch = (kind: string) => type === 'all' || type === kind;
 
-  const [dzTracksRes, dzArtistsRes, dzAlbumsRes, dzPlaylistsRes] = await Promise.all([
+  const [dzTracksRes, dzArtistsRes, dzAlbumsRes, dzPlaylistsRes, itTracksRes, itAlbumsRes] = await Promise.all([
     shouldFetch('track')
-      ? fetch(`https://api.deezer.com/search/track?q=${encodeURIComponent(trimmed)}&limit=18`).then((r) => r.json()).catch(() => ({ data: [] }))
-      : Promise.resolve({ data: [] }),
+      ? fetchJsonSafe(`https://api.deezer.com/search/track?q=${encodeURIComponent(trimmed)}&limit=18`)
+      : Promise.resolve(null),
     shouldFetch('artist')
-      ? fetch(`https://api.deezer.com/search/artist?q=${encodeURIComponent(trimmed)}&limit=12`).then((r) => r.json()).catch(() => ({ data: [] }))
-      : Promise.resolve({ data: [] }),
+      ? fetchJsonSafe(`https://api.deezer.com/search/artist?q=${encodeURIComponent(trimmed)}&limit=12`)
+      : Promise.resolve(null),
     shouldFetch('album')
-      ? fetch(`https://api.deezer.com/search/album?q=${encodeURIComponent(trimmed)}&limit=12`).then((r) => r.json()).catch(() => ({ data: [] }))
-      : Promise.resolve({ data: [] }),
+      ? fetchJsonSafe(`https://api.deezer.com/search/album?q=${encodeURIComponent(trimmed)}&limit=12`)
+      : Promise.resolve(null),
     shouldFetch('playlist')
-      ? fetch(`https://api.deezer.com/search/playlist?q=${encodeURIComponent(trimmed)}&limit=10`).then((r) => r.json()).catch(() => ({ data: [] }))
-      : Promise.resolve({ data: [] }),
+      ? fetchJsonSafe(`https://api.deezer.com/search/playlist?q=${encodeURIComponent(trimmed)}&limit=10`)
+      : Promise.resolve(null),
+    shouldFetch('track') || shouldFetch('artist')
+      ? fetchJsonSafe(`https://itunes.apple.com/search?term=${encodeURIComponent(trimmed)}&entity=song&limit=20&country=BR`)
+      : Promise.resolve(null),
+    shouldFetch('album')
+      ? fetchJsonSafe(`https://itunes.apple.com/search?term=${encodeURIComponent(trimmed)}&entity=album&limit=12&country=BR`)
+      : Promise.resolve(null),
   ]);
 
-  // Merge Tracks (deduplicate title + artist)
+  // Merge Tracks (Deezer + iTunes fallback, deduplicating title + artist)
   const seenTrackKeys = new Set(localTracks.map((t) => `${normalizeText(t.title)}|${normalizeText(t.artistName)}`));
-  const dzTracks = (dzTracksRes?.data || [])
-    .map((t: any) => mapDeezerTrack(t))
-    .filter((t: Track) => {
-      const k = `${normalizeText(t.title)}|${normalizeText(t.artistName)}`;
-      if (seenTrackKeys.has(k)) return false;
-      seenTrackKeys.add(k);
-      return true;
-    });
-  const tracks = [...localTracks, ...dzTracks].slice(0, 24);
+  const remoteTracksRaw: Track[] = [
+    ...(dzTracksRes?.data || []).map((t: any) => mapDeezerTrack(t)),
+    ...(itTracksRes?.results || []).map((t: any) => mapItunesTrack(t)),
+  ];
+  const remoteTracks = remoteTracksRaw.filter((t: Track) => {
+    const k = `${normalizeText(t.title)}|${normalizeText(t.artistName)}`;
+    if (seenTrackKeys.has(k)) return false;
+    seenTrackKeys.add(k);
+    return true;
+  });
+  const tracks = [...localTracks, ...remoteTracks].slice(0, 24);
 
-  // Merge Artists (sort live Deezer artists by fan count descending so main artists rank #1)
+  // Merge Artists (Deezer sorted by fans + unique artists derived from iTunes tracks)
   const seenArtistNames = new Set(localArtists.map((a) => normalizeText(a.name)));
   const dzArtistsSorted = (dzArtistsRes?.data || [])
     .slice()
@@ -878,26 +1041,54 @@ export async function searchCatalog(query: string, type = 'all'): Promise<Search
         fans: Number(a.nb_fan || 0),
         monthlyListenersLabel: a.nb_fan ? `${Number(a.nb_fan).toLocaleString('pt-BR')} fãs` : undefined,
       };
-    })
-    .filter((a: Artist) => {
-      const k = normalizeText(a.name);
-      if (seenArtistNames.has(k)) return false;
-      seenArtistNames.add(k);
-      return true;
     });
-  const artists = [...localArtists, ...dzArtistsSorted].slice(0, 12);
 
-  // Merge Albums
+  const itArtistsDerived: Artist[] = [];
+  for (const r of itTracksRes?.results || []) {
+    if (!r.artistName) continue;
+    const mappedCurated = Object.values(SPOTIFY_ARTIST_MAP).find(
+      (c) => c.itunesId === Number(r.artistId) || normalizeText(c.name) === normalizeText(r.artistName)
+    );
+    if (mappedCurated) {
+      itArtistsDerived.push({
+        id: mappedCurated.id,
+        name: mappedCurated.name,
+        imageUrl: mappedCurated.imageUrl,
+        genre: mappedCurated.genre,
+        bio: mappedCurated.bio,
+      });
+    } else if (r.artistId) {
+      itArtistsDerived.push({
+        id: `it-artist-${r.artistId}`,
+        name: r.artistName,
+        imageUrl: toHighResItunesCover(r.artworkUrl100 || ''),
+        genre: r.primaryGenreName || 'Artista',
+        bio: '',
+      });
+    }
+  }
+
+  const remoteArtists = [...dzArtistsSorted, ...itArtistsDerived].filter((a: Artist) => {
+    const k = normalizeText(a.name);
+    if (seenArtistNames.has(k)) return false;
+    seenArtistNames.add(k);
+    return true;
+  });
+  const artists = [...localArtists, ...remoteArtists].slice(0, 12);
+
+  // Merge Albums (Deezer + iTunes fallback)
   const seenAlbumKeys = new Set(localAlbums.map((a) => `${normalizeText(a.title)}|${normalizeText(a.artistName)}`));
-  const dzAlbums = (dzAlbumsRes?.data || [])
-    .map((a: any) => mapDeezerAlbum(a))
-    .filter((a: Album) => {
-      const k = `${normalizeText(a.title)}|${normalizeText(a.artistName)}`;
-      if (seenAlbumKeys.has(k)) return false;
-      seenAlbumKeys.add(k);
-      return true;
-    });
-  const mergedAlbums = [...localAlbums, ...dzAlbums].slice(0, 12);
+  const remoteAlbumsRaw: Album[] = [
+    ...(dzAlbumsRes?.data || []).map((a: any) => mapDeezerAlbum(a)),
+    ...(itAlbumsRes?.results || []).map((a: any) => mapItunesAlbum(a)),
+  ];
+  const remoteAlbums = remoteAlbumsRaw.filter((a: Album) => {
+    const k = `${normalizeText(a.title)}|${normalizeText(a.artistName)}`;
+    if (seenAlbumKeys.has(k)) return false;
+    seenAlbumKeys.add(k);
+    return true;
+  });
+  const mergedAlbums = [...localAlbums, ...remoteAlbums].slice(0, 12);
 
   // Merge Playlists
   const dzPlaylists = (dzPlaylistsRes?.data || []).map((p: any) => mapDeezerPlaylist(p));
@@ -947,30 +1138,25 @@ export async function refreshTrackPreview(trackId: string, title?: string, artis
     }
   }
 
+  if (trackId.startsWith('it-track-')) {
+    const rawId = trackId.replace(/^it-track-/, '');
+    const d = await fetchJsonSafe(`https://itunes.apple.com/lookup?id=${rawId}&country=BR`);
+    if (d?.results?.[0]?.previewUrl) return d.results[0].previewUrl;
+  }
+
   if (trackId.startsWith('dz-track-')) {
     const rawId = trackId.replace(/^dz-track-/, '');
-    try {
-      const d = await fetch(`https://api.deezer.com/track/${rawId}`).then((r) => r.json());
-      if (d?.preview) return d.preview;
-    } catch {
-      // fall through
-    }
+    const d = await fetchJsonSafe(`https://api.deezer.com/track/${rawId}`);
+    if (d?.preview) return d.preview;
   }
 
   if (title) {
     const q = `${title} ${artist || ''}`.trim();
-    try {
-      const dz = await fetch(`https://api.deezer.com/search/track?q=${encodeURIComponent(q)}&limit=1`).then((r) => r.json());
-      if (dz?.data?.[0]?.preview) return dz.data[0].preview;
-    } catch {
-      // fall through
-    }
-    try {
-      const it = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=song&limit=1&country=BR`).then((r) => r.json());
-      if (it?.results?.[0]?.previewUrl) return it.results[0].previewUrl;
-    } catch {
-      // ignore
-    }
+    const dz = await fetchJsonSafe(`https://api.deezer.com/search/track?q=${encodeURIComponent(q)}&limit=1`);
+    if (dz?.data?.[0]?.preview) return dz.data[0].preview;
+
+    const it = await fetchJsonSafe(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=song&limit=1&country=BR`);
+    if (it?.results?.[0]?.previewUrl) return it.results[0].previewUrl;
   }
   return null;
 }
@@ -1023,172 +1209,4 @@ export async function getHomeData() {
       cues: [
         { startSec: 0, endSec: 6, caption: '♪ Entre no meu corpo, seja água, seja fogo…', signLabel: 'AURORA · JÃO', handPose: 'aurora' },
         { startSec: 6, endSec: 15, caption: 'Eu só quero ser feliz de novo…', signLabel: 'SENTIR · CORAÇÃO', handPose: 'heart' },
-        { startSec: 15, endSec: 24, caption: 'E se amanhã eu não voltar, meu bem, você me espera…', signLabel: 'ESPERA · TEMPO', handPose: 'pulse' },
-        { startSec: 24, endSec: 40, caption: 'Já tive medo, mas eu sei também o tempo não erra.', signLabel: 'ENTRE SINAIS', handPose: 'wave' },
-      ],
-    },
-    {
-      id: 'clip-santo',
-      title: 'Santo',
-      artistName: 'Marina Sena',
-      artistId: 'sp-artist-0nFdWpwl7h6fp3ADRyG14L',
-      trackId: santoTrack?.id || 'sp-track-6PETRfB5ssib6VqCAG6nIF',
-      videoUrl: '/assets/aistudio/web/santo_libras.mp4',
-      posterUrl: '/assets/aistudio/web/santo_libras.jpg',
-      coverUrl: alMarina?.coverUrl || '',
-      artistImageUrl: SPOTIFY_ARTIST_MAP['0nFdWpwl7h6fp3ADRyG14L'].imageUrl,
-      description: 'Videoclipe oficial de Santo (De Primeira) com interpretação musical em Libras integrada.',
-      interpreterNote: 'Interpretação em Libras acompanhando a cadência vocal e percussiva de Marina Sena.',
-      cues: [
-        { startSec: 0, endSec: 8, caption: '♪ Jeito de quem corre, sofro na estrada, lindo é o caminho…', signLabel: 'SANTO · MARINA SENA', handPose: 'open' },
-        { startSec: 8, endSec: 18, caption: 'Fé que vai chegar um santo que me mostre que eu já sou um anjo…', signLabel: 'ANJO · LIBERDADE', handPose: 'aurora' },
-        { startSec: 18, endSec: 36, caption: 'E vi a minha liberdade.', signLabel: 'ENTRE SINAIS', handPose: 'wave' },
-      ],
-    },
-    {
-      id: 'clip-cheguei',
-      title: 'Cheguei',
-      artistName: 'LUDMILLA',
-      artistId: 'sp-artist-3CDoRporvSjdzTrm99a3gi',
-      trackId: chegueiTrack?.id || 'sp-track-6cbZb9mVAc5s8HtwklLoI0',
-      videoUrl: '/assets/aistudio/web/cheguei_libras_v2.mp4',
-      posterUrl: '/assets/aistudio/web/cheguei_libras_v2.jpg',
-      coverUrl: alLud?.coverUrl || '',
-      artistImageUrl: SPOTIFY_ARTIST_MAP['3CDoRporvSjdzTrm99a3gi'].imageUrl,
-      description: 'Videoclipe oficial de Cheguei (A danada sou eu) com janela de Libras integrada.',
-      interpreterNote: 'Tradução energética em Libras acompanhando a batida funk/pop.',
-      cues: [
-        { startSec: 0, endSec: 7, caption: '♪ Cheguei, cheguei chegando bagunçando a zorra toda…', signLabel: 'CHEGUEI · LUDMILLA', handPose: 'pulse' },
-        { startSec: 7, endSec: 18, caption: 'Porque ninguém vai estragar meu dia, avisa lá pode falar que eu cheguei!', signLabel: 'PRESENÇA · FORÇA', handPose: 'open' },
-        { startSec: 18, endSec: 38, caption: '♪ Ritmo e celebração em Libras.', signLabel: 'ENTRE SINAIS', handPose: 'heart' },
-      ],
-    },
-  ];
-
-  const artistSigns: ArtistSign[] = [
-    {
-      artistId: 'sp-artist-59FrDXDVJz0EKqYg39dnT2',
-      artistName: 'Jão',
-      artistImageUrl: SPOTIFY_ARTIST_MAP['59FrDXDVJz0EKqYg39dnT2'].imageUrl,
-      signTitle: 'Como fazer o sinal de Jão em Libras',
-      signDescription: 'A intérprete demonstra o sinal pessoal de Jão em Libras, associado às características marcantes do artista.',
-      videoUrl: '/assets/aistudio/web/sinal_jao_v2.mp4',
-      posterUrl: '/assets/aistudio/web/sinal_jao_v2.jpg',
-      featuredTrackId: auroraTrack?.id || 'sp-track-6PPB5jKQ257UqzP7tgmozP',
-      featuredTrackTitle: 'Aurora',
-    },
-    {
-      artistId: 'sp-artist-0nFdWpwl7h6fp3ADRyG14L',
-      artistName: 'Marina Sena',
-      artistImageUrl: SPOTIFY_ARTIST_MAP['0nFdWpwl7h6fp3ADRyG14L'].imageUrl,
-      signTitle: 'Como fazer o sinal de Marina Sena em Libras',
-      signDescription: 'Sinal criado em referência aos cachos característicos de Marina Sena, fazendo o movimento em espiral ao lado da cabeça.',
-      videoUrl: '/assets/aistudio/web/sinal_marina_v2.mp4',
-      posterUrl: '/assets/aistudio/web/sinal_marina_v2.jpg',
-      featuredTrackId: santoTrack?.id || 'sp-track-6PETRfB5ssib6VqCAG6nIF',
-      featuredTrackTitle: 'Santo',
-    },
-    {
-      artistId: 'sp-artist-3CDoRporvSjdzTrm99a3gi',
-      artistName: 'LUDMILLA',
-      artistImageUrl: SPOTIFY_ARTIST_MAP['3CDoRporvSjdzTrm99a3gi'].imageUrl,
-      signTitle: 'Como fazer o sinal de LUDMILLA em Libras',
-      signDescription: 'Configuração da letra "L" posicionada na testa com movimento curto e firme para frente.',
-      videoUrl: '/assets/aistudio/web/sinal_ludmilla_v2.mp4',
-      posterUrl: '/assets/aistudio/web/sinal_ludmilla_v2.jpg',
-      featuredTrackId: chegueiTrack?.id || 'sp-track-6cbZb9mVAc5s8HtwklLoI0',
-      featuredTrackTitle: 'Cheguei',
-    },
-  ];
-
-  const fanStories: FanStory[] = [
-    {
-      id: 'story-igor',
-      name: 'Igor Bucioli',
-      handle: '@igorbucioli',
-      city: 'Brasil',
-      role: 'Criador surdo · Comunidade Libras',
-      videoUrl: '/assets/aistudio/Igor_Bucioli_video_no_watermark_6724fd99.mp4',
-      posterUrl: '/assets/aistudio/web/story_igor.jpg',
-      durationSec: 60,
-      accentGradient: 'from-emerald-900 via-teal-950 to-neutral-900',
-      initials: 'IB',
-      quote: 'Quando voltei para a escola bilíngue com Libras, tudo ficou mais claro. A língua de sinais transforma a nossa forma de aprender e sentir.',
-      captions: [
-        { startSec: 0, text: '“Sou surdo. Quando estava na 2ª série em uma escola especial para surdos…”' },
-        { startSec: 15, text: '“Na escola com ouvintes não tinha intérprete e eu ficava no modo silencioso.”' },
-        { startSec: 36, text: '“Lá com Libras tudo ficou fácil. Foi um alívio poder me comunicar e aprender assim.”' },
-      ],
-      favoriteTrackId: auroraTrack?.id || 'sp-track-6PPB5jKQ257UqzP7tgmozP',
-    },
-    {
-      id: 'story-tony',
-      name: 'Tony Alves',
-      handle: '@tonyalves_libras',
-      city: 'Brasil',
-      role: 'CODA · Filho ouvinte de pais surdos',
-      videoUrl: '/assets/aistudio/tonyalves_libras_video_no_watermark_3a9d551e.mp4',
-      posterUrl: '/assets/aistudio/web/story_tony.jpg',
-      durationSec: 89,
-      accentGradient: 'from-rose-950 via-stone-900 to-neutral-950',
-      initials: 'TA',
-      quote: 'Aprendi primeiro a língua de sinais e depois o português. Dentro de casa, a nossa comunicação sempre foi em Libras.',
-      captions: [
-        { startSec: 0, text: '“Eu aprendi primeiro a língua de sinais e depois o português. Sou filho ouvinte de pai e mãe surdos.”' },
-        { startSec: 28, text: '“Com 4 ou 5 anos eu já me comunicava perfeitamente em Libras dentro de casa.”' },
-        { startSec: 60, text: '“E se você quer aprender um pouquinho mais sobre a comunidade surda, vem com a gente.”' },
-      ],
-      favoriteTrackId: chegueiTrack?.id || 'sp-track-6cbZb9mVAc5s8HtwklLoI0',
-    },
-    {
-      id: 'story-taina',
-      name: 'Tainá Moser',
-      handle: '@tainamoser',
-      city: 'Brasil',
-      role: 'Educadora e influenciadora em Libras',
-      videoUrl: '/assets/aistudio/Taina_Moser_video_no_watermark_497a3229.mp4',
-      posterUrl: '/assets/aistudio/web/story_taina.jpg',
-      durationSec: 56,
-      accentGradient: 'from-purple-950 via-neutral-900 to-black',
-      initials: 'TM',
-      quote: 'Se fala muito sobre inclusão, mas pouco sobre a inclusão real na vida das pessoas surdas. Bora aprender Libras?',
-      captions: [
-        { startSec: 0, text: '“Você já parou para pensar quantos surdos não conseguem se comunicar no dia a dia?”' },
-        { startSec: 22, text: '“Já imaginou eu começar a sinalizar aqui sem falar nada? Se coloque no lugar do surdo.”' },
-        { startSec: 40, text: '“Tenha empatia e bora aprender Libras!”' },
-      ],
-      favoriteTrackId: santoTrack?.id || 'sp-track-6PETRfB5ssib6VqCAG6nIF',
-    },
-    {
-      id: 'story-bella',
-      name: 'Isabella Bauer',
-      handle: '@isabella.bauer',
-      city: 'Brasil',
-      role: 'Criadora surda · Música e Spotify',
-      videoUrl: '/assets/aistudio/Bella_Bauer_video_no_watermark_61a848f8.mp4',
-      posterUrl: '/assets/aistudio/web/story_bella.jpg',
-      durationSec: 49,
-      accentGradient: 'from-amber-950 via-stone-900 to-neutral-950',
-      initials: 'BB',
-      quote: 'Tem uma coisa muito legal do Spotify que é a letra passando enquanto a música está tocando — aí eu consigo acompanhar tudo.',
-      captions: [
-        { startSec: 0, text: '“Eu (surda) escuto música? Escuto, mas de um jeito novo e conectado ao visual.”' },
-        { startSec: 20, text: '“No Spotify, acompanhar a letra passando em tempo real faz toda diferença.”' },
-        { startSec: 36, text: '“Agora estou explorando cada vez mais músicas — e vocês também podem indicar suas favoritas!”' },
-      ],
-      favoriteTrackId: auroraTrack?.id || 'sp-track-6PPB5jKQ257UqzP7tgmozP',
-    },
-  ];
-
-  return {
-    featuredAlbums,
-    artists,
-    playlists,
-    entreSinais: {
-      librasClips,
-      artistSigns,
-      fanStories,
-      accessibleTracks: [auroraTrack, santoTrack, chegueiTrack].filter(Boolean) as Track[],
-    },
-  };
-}
+        { startSec: 15, endSec: 24, caption: '
