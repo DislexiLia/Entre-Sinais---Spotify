@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entre Sinais</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#000;--pn:#121212;--cd:#1f1f1f;--hv:#2a2a2a;--mu:#b3b3b3;--ac:#4ade80;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;height:100%;background:var(--bg);color:#fff;font:400 14px Inter,Arial,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}a{color:inherit}
+#app{display:grid;height:100%;grid-template-columns:280px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 88px;gap:8px;padding:8px}
+.pn{background:var(--pn);border-radius:10px;min-width:0}
+#side{padding:8px;overflow:auto}
+.nv,.li{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;border:0;border-radius:8px;background:none;text-align:left;padding:4px 10px}
+.nv{color:var(--mu);font-weight:600;font-size:15px}.nv:hover,.nv.on{color:#fff}.nv.on{background:var(--cd)}
+.lib{margin-top:12px;padding-top:12px;border-top:1px solid #262626}
+.li{font-weight:600;font-size:13px}.li:hover{background:var(--cd)}.li img,.li .cv{width:40px;height:40px;border-radius:4px;object-fit:cover;flex:none;font-size:12px;padding:0}
+#main{overflow:auto;padding:20px 24px}
+h1,h2{margin:0}h2{font-size:20px;font-weight:800;margin:28px 0 12px}
+.chips,.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs{margin-top:16px}
+.ch{border:0;border-radius:999px;padding:0 16px;min-height:44px;background:var(--hv);font-weight:600;display:flex;align-items:center;text-decoration:none}
+.ch.on{background:var(--ac);color:#0b0b0b;font-weight:800}.ch img{height:20px;width:auto}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:20px}
+.tl{display:flex;align-items:center;gap:12px;border:0;border-radius:6px;background:var(--hv);padding:0 12px 0 0;min-height:56px;overflow:hidden;font-weight:600;text-align:left}
+.tl img,.tl .cv{width:56px;height:56px;object-fit:cover;border-radius:0;font-size:16px;padding:0;flex:none}.tl:hover{background:#3a3a3a}
+.bn{margin-top:24px;border:1px solid var(--ac);border-radius:12px;background:#1b2a21;padding:20px;max-width:640px}
+.bn img{height:36px;width:auto;display:block;margin:6px 0 10px;max-width:100%}
+.ey{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--ac)}
+.bt{border:0;border-radius:999px;min-height:44px;padding:0 22px;background:var(--ac);color:#0b0b0b;font-weight:800;display:inline-flex;align-items:center;text-decoration:none}
+.bt.o{background:none;border:1px solid #777;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+.cw{position:relative}.fab{position:absolute;right:20px;top:calc(100% - 100px);width:44px;height:44px;border-radius:50%;border:0;background:var(--ac);color:#0b0b0b;display:none;align-items:center;justify-content:center}
+.cw:hover .fab,.fab:focus-visible{display:flex}
+.cd{width:100%;background:var(--cd);border:0;border-radius:8px;padding:12px;text-align:left;display:block}.cd:hover{background:var(--hv)}
+.cd img,.cd .cv{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;display:block}.cd.v img{aspect-ratio:9/14}.cd.r img{border-radius:50%}
+.cv{display:flex;align-items:center;justify-content:center;background:#2f4f3a;font-weight:800;font-size:28px;color:#fff;overflow:hidden}
+.t{font-weight:600;margin-top:10px}.s{color:var(--mu);font-size:12px;margin-top:2px}
+.hero{display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap}
+.hero>img,.hero>.cv{width:200px;height:200px;border-radius:8px;object-fit:cover;flex:none;font-size:56px}.hero.r>img{border-radius:50%}
+.hero h1{font-size:clamp(28px,5vw,56px);font-weight:800}
+.tr{display:flex;align-items:center;gap:8px;min-height:56px;border-radius:6px;padding:0 8px}.tr:hover{background:var(--cd)}.tr.cu .t{color:var(--ac)}
+.pi{width:36px;height:44px;border:0;background:none;color:var(--mu);flex:none}.tn{flex:1;min-width:0}.tn .t{margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.al{flex:1;color:var(--mu);font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.du{color:var(--mu);font-size:12px;width:40px;text-align:right}
+.lb{background:var(--ac);color:#0b0b0b;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:800}
+.eq{display:inline-flex;gap:2px;align-items:flex-end;height:14px}.eq i{width:3px;background:var(--ac);animation:eq .9s infinite ease-in-out}.eq i:nth-child(2){animation-delay:.3s}.eq i:nth-child(3){animation-delay:.6s}
+@keyframes eq{0%,100%{height:3px}50%{height:14px}}@media(prefers-reduced-motion:reduce){.eq i{animation:none;height:10px}}
+.clip{position:relative;max-width:720px;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000}
+.clip>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sc{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.bd{position:absolute;left:12px;top:12px;display:flex;gap:6px}.bd span{border-radius:4px;padding:3px 8px;font-size:11px;font-weight:800;background:#000}.bd .g{background:var(--ac);color:#0b0b0b}
+.pb{position:absolute;left:50%;top:50%;margin:-28px 0 0 -28px;width:56px;height:56px;border-radius:50%;border:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center}
+.pip{position:absolute;right:12px;bottom:20px;width:22%;aspect-ratio:4/5;object-fit:cover;border-radius:8px;border:2px solid var(--ac)}.pip.big{width:34%}
+.cap{position:absolute;left:12px;bottom:20px;max-width:50%;background:rgba(0,0,0,.75);border-radius:4px;padding:6px 10px;font-weight:600}
+.pr{position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.3)}.pr i,.bar i{display:block;height:100%;background:var(--ac)}
+.t2{font-size:20px;font-weight:800;margin-top:12px}
+.av{border:0;background:none;text-align:center;width:104px;font-weight:600;font-size:12px}.av img{width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid transparent;display:block;margin:0 auto 6px}.av.on img{border-color:var(--ac)}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.sr,.in{width:100%;max-width:480px;min-height:44px;border:0;border-radius:999px;background:var(--hv);color:#fff;padding:0 18px;font:inherit}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:9;padding:16px}
+.ph{position:relative;width:min(360px,100%);height:min(640px,100%);border-radius:14px;overflow:hidden;background:#000}.ph>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.ph .sc{background:rgba(0,0,0,.3)}
+.dg{background:#282828;border-radius:12px;padding:20px;width:min(380px,100%);max-height:100%;overflow:auto}
+.ib{border:0;border-radius:50%;width:44px;height:44px;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
+#bar{display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;gap:12px;padding:0 16px}
+.np{display:flex;align-items:center;gap:8px;min-width:0}.np>img,.np>.cv{width:52px;height:52px;border-radius:4px;object-fit:cover;flex:none;font-size:16px}.np .tx{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cn{display:flex;flex-direction:column;align-items:center;gap:2px}.cn .rw{display:flex;align-items:center;gap:4px}
+.pp{width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#000;display:flex;align-items:center;justify-content:center}
+.bi{border:0;background:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--mu);flex:none}.bi.on,.bi:hover{color:#fff}.bi.on{color:var(--ac)}
+.pg{display:flex;align-items:center;gap:8px;width:100%;max-width:520px;font-size:11px;color:var(--mu)}.bar{flex:1;height:14px;display:flex;align-items:center;cursor:pointer}.bar b{display:block;width:100%;height:4px;border-radius:2px;background:#4d4d4d;overflow:hidden}
+.rt{display:flex;align-items:center;justify-content:flex-end;gap:4px;font-size:11px;color:var(--mu);text-align:right}
+@media(max-width:820px){#app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto}#main{grid-row:1;padding:16px}#bar{grid-row:2;grid-template-columns:1fr auto;padding:8px 12px}#side{grid-row:3;display:flex;padding:4px;overflow:auto}.lib,.rt,.pg,.cn .xs{display:none}.nv{font-size:12px;flex-direction:column;gap:2px;justify-content:center;text-align:center}}
+</style>
+</head>
+<body>
+<div id="app"><nav id="side" class="pn" aria-label="Navegação"></nav><main id="main" class="pn"></main><footer id="bar" class="pn"></footer></div>
+<div id="ov"></div>
+<script>
+const $=s=>document.querySelector(s),B='/_blob/';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nz=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const m=s=>{if(!s)return 0;const[a,b]=s.split(':');return +a*60+ +b};
+const fmt=s=>s?Math.floor(s/60)+':'+String(s%60).padStart(2,'0'):'—';
+const LOGO=B+'f9712bd776f8b420f85c6cfe7da00147',CLIP=B+'95cf71b377dbfb4e2e11ab1e6f7bde30',INT=B+'0cb521190b7f8c8095732ec6baa7ddf2';
+const SP='https://open.spotify.com/intl-pt/';
+const ART={
+jao:{n:'Jão',img:B+'2a338dadfb9cd8171520214058711d68',g:'Pop',url:SP+'artist/59FrDXDVJz0EKqYg39dnT2',bio:'Cantor e compositor brasileiro. Seu primeiro álbum, Lobos, trouxe o single Imaturo, certificado diamante no Brasil. Memórias Póstumas, lançado em 26 de julho de 2026, é seu quinto álbum de estúdio: 14 faixas inspiradas na obra de Machado de Assis, com capa fotografada por Hugo Comte.',other:[['Lobos','']],vid:[['Aurora','Faixa 5 de Memórias Póstumas. Na campanha Entre Sinais, o clipe ganha interpretação em Libras.',1]]},
+marina:{n:'Marina Sena',img:B+'a5e494bdafb9ae2d158c849038cf6e67',g:'Pop e MPB',url:SP+'artist/0nFdWpwl7h6fp3ADRyG14L',bio:'Cantora brasileira. De Primeira (2021), seu álbum de estreia solo, foi produzido por Iuri Rio Branco e mistura pop com elementos de MPB. Foi indicado ao Grammy Latino e fez Por Supuesto entrar no Viral Global do Spotify. Depois vieram Vício Inerente (2023) e Coisas Naturais (2025).',other:[['Vício Inerente','2023'],['Coisas Naturais','2025']],vid:[['Me Toca','Primeiro single da carreira solo, lançado com clipe em janeiro de 2021.'],['Voltei pra Mim','Segundo single, com clipe lançado em junho de 2021.']]},
+ludmilla:{n:'Ludmilla',img:B+'5e947a555a0a0685e907b061a5973ccf',g:'Funk, pop e pagode',url:SP+'artist/3CDoRporvSjdzTrm99a3gi',bio:'Ludmila Oliveira da Silva é cantora e compositora brasileira. Começou a cantar aos oito anos em rodas de pagode e iniciou a carreira em 2012 como MC Beyoncé, com o funk Fala Mal de Mim. Assinou com a Warner em 2014. A Danada Sou Eu (2016) é seu segundo álbum e foi indicado ao Grammy Latino de 2017.',other:[['Hoje','2014'],['Hello Mundo','2019'],['Numanice 2','2022'],['Vilã','2023']],vid:[['Bom','Clipe de 2016 dirigido por Felipe Sassi.'],['Sou Eu','Clipe de 2016 dirigido por Fabio Iadeluca.']]}};
+const AL={
+'memorias-postumas':{n:'Memórias Póstumas',ar:'jao',y:2026,img:B+'5bb985921807fa89dc87a53e0a56fbeb',url:SP+'album/37oi5fAM46AtRr3bXNj8M3',tr:[['Catedral','3:41'],['João','2:32'],['O Amor','2:57'],['Tudo Me Lembra','3:39'],['Aurora','3:40',2],['Coincidências','3:41'],['Por Você','3:32'],['O Arquiteto','3:54'],['Literatura','5:03'],['Curioso','3:48'],['Eu Sempre Volto','4:24'],['Passeios Noturnos','3:21'],['Jabuticabeira','3:16'],['Memórias Póstumas','3:59']]},
+'de-primeira':{n:'De Primeira',ar:'marina',y:2021,img:'',url:SP+'album/15llRNuI2Ng20iaY9SQgsY',tr:[['Me Toca','3:06',1],['Pelejei','3:16'],['Por Supuesto','3:06',1],['Cabelo','4:11'],['Voltei pra Mim','3:18',1],['Temporal','3:11'],['Tamborim','3:20'],['Amiúde','4:11'],['Seu Olhar','3:11'],['Santo','3:32']]},
+'a-danada-sou-eu':{n:'A Danada Sou Eu',ar:'ludmilla',y:2016,img:B+'403eb45965b9ac24a1f809896d01449f',url:SP+'album/4JZQXCD2TwUZmxSLlMDRoX',tr:[['Cheguei','2:54'],['Bom','2:52',1],['Sou Eu','2:38',1],['Desapega','2:15'],['Tipo crazy (Participação especial Jeremih)','3:11'],['Tá Tudo Errado','2:59'],['Modo Avião','3:08'],['Abusa',''],['Espelho','2:55'],['Homem é homem (Participação especial Gusttavo Lima)','3:21'],['Pegada','3:34'],['Abstinência (Participação especial Filipe Ret)','3:26'],['Nunca Me Verá Chorar','3:44'],['Caça e Caçador',''],['Tô Querendo Mais','3:17'],['Duas Doses de Saudade','2:22']]}};
+const TRK={};Object.entries(AL).forEach(([id,a])=>{a.id=id;a.tr=a.tr.map((x,i)=>{const t={id:id+'-'+(i+1),n:x[0],d:m(x[1]),al:id,ar:a.ar,s:x[2]===1,acc:x[2]===2};TRK[t.id]=t;return t.id})});
+Object.entries(ART).forEach(([id,a])=>a.id=id);
+const artTr=id=>Object.values(AL).filter(a=>a.ar===id).flatMap(a=>a.tr);
+const DEST=['memorias-postumas-5','de-primeira-3','a-danada-sou-eu-2','memorias-postumas-1'];
+const FANS=[['Malu','e63b6066f543a76368822ba1a87f07bf',45],['Matheus','f268755fdd0df6452969264d041c4cbf',70],['Isadora','6adb4ab76d52c361d5ce9f2031722cdf',58]].map(([n,i,d])=>({n,img:B+i,d}));
+let LIB={liked:[],pls:{},hist:[],acc:false};
+try{const r=JSON.parse(localStorage.getItem('es_lib'));if(r&&typeof r==='object'){LIB={liked:Array.isArray(r.liked)?r.liked.filter(x=>TRK[x]):[],pls:r.pls&&typeof r.pls==='object'?r.pls:{},hist:Array.isArray(r.hist)?r.hist.filter(x=>TRK[x]):[],acc:!!r.acc}}}catch(e){}
+const save=()=>{try{localStorage.setItem('es_lib',JSON.stringify(LIB))}catch(e){}};
+const PLS=()=>[{id:'curtidas',n:'Músicas curtidas',t:LIB.liked,sys:1},{id:'destaques',n:'Entre Sinais · Destaques (exemplo)',t:DEST,sys:1},...Object.entries(LIB.pls).map(([id,p])=>({id,n:p.n,t:Array.isArray(p.t)?p.t.filter(x=>TRK[x]):[]}))];
+const plOf=id=>PLS().find(p=>p.id===id);
+const sv=(p,d)=>`<svg width="${d||22}" height="${d||22}" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const st=(p)=>sv(`<path d="${p}" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`);
+const I={play:sv('<path d="M7 4l13 8-13 8z" fill="currentColor"/>'),pause:sv('<path d="M6 4h4v16H6zM14 4h4v16h-4z" fill="currentColor"/>'),prev:sv('<path d="M6 5h2v14H6zM20 5v14L9 12z" fill="currentColor"/>'),next:sv('<path d="M16 5h2v14h-2zM4 5l11 7L4 19z" fill="currentColor"/>'),x:st('M5 5l14 14M19 5L5 19'),home:sv('<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" fill="currentColor"/>'),search:sv('<circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="2"/>'),lib:st('M4 4v16M9 4v16M14 6l6 14'),hist:st('M4 12a8 8 0 108-8M4 4v5h5M12 8v5l3 2'),hand:sv('<path d="M8 12V5a1.5 1.5 0 013 0v6m0-7a1.5 1.5 0 013 0v7m0-5a1.5 1.5 0 013 0v8a6 6 0 01-6 6h-1a5 5 0 01-4-2l-3-4a1.5 1.5 0 012-2l2 2" stroke="currentColor" stroke-width="1.8" fill="none"/>'),plus:st('M12 5v14M5 12h14'),shuf:st('M3 7h4l10 10h4M3 17h4l3-3M14 10l3-3h4M18 4l3 3-3 3M18 14l3 3-3 3'),rep:st('M4 11V9a3 3 0 013-3h12l-3-3M20 13v2a3 3 0 01-3 3H5l3 3'),heart:f=>sv(`<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 5.8-8 11-8 11z" stroke="currentColor" stroke-width="2" fill="${f?'#4ade80':'none'}"/>`)};
+const EQ='<span class="eq" aria-label="Tocando"><i></i><i></i><i></i></span>';
+const cov=(a,c)=>a.img?`<img src="${a.img}" alt="">`:`<div class="cv${c?' '+c:''}">${a.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>`;
+let S={v:'inicio',tab:'s0',st:-1,sp:false,sg:0,sel:0,sgp:false,cp:false,cg:0,cl:true,cc:true,cb:false,q:'',sf:'all',lt:'p',dlg:'',qres:[]};
+let P={q:[],i:0,pl:false,t:0,sh:false,rp:'off'};
+const cur=()=>TRK[P.q[P.i]];
+const ctxList=c=>{const[k,id]=c.split(':');return k==='al'?AL[id].tr:k==='ar'?artTr(id):k==='pl'?(plOf(id)||{t:[]}).t:k==='hi'?LIB.hist:k==='q'?S.qres:[id]};
+function startAt(i){P.i=i;P.t=0;P.pl=true;const id=P.q[i];LIB.hist=[id,...LIB.hist.filter(x=>x!==id)].slice(0,30);save()}
+function playCtx(c,i){const l=ctxList(c).slice();if(!l.length)return;P.q=l;startAt(i||0)}
+function nx(auto){const n=P.q.length;if(!n)return;if(auto&&P.rp==='one'){P.t=0;return}let i=P.i+1;if(P.sh&&n>1){do{i=Math.floor(Math.random()*n)}while(i===P.i)}else if(i>=n){if(P.rp==='all')i=0;else{P.pl=false;P.t=0;return}}startAt(i)}
+function pv(){if(P.t>3||P.i===0){P.t=0;return}startAt(P.i-1)}
+const row=(id,c,i,al)=>{const t=TRK[id],cu=P.q[P.i]===id,lk=LIB.liked.includes(id);return `<div class="tr${cu?' cu':''}"><button class="pi" data-a="pt" data-c="${c}" data-i="${i}" aria-label="Tocar ${t.n}">${cu&&P.pl?EQ:i+1}</button><div class="tn"><div class="t">${t.n}</div><div class="s">${ART[t.ar].n}${t.s?' · Single':''}${t.acc?' <span class="lb">LIBRAS</span>':''}</div></div>${al?`<div class="al">${AL[t.al].n}</div>`:''}<button class="bi${lk?' on':''}" data-a="lk" data-i="${id}" aria-label="Curtir" aria-pressed="${lk}">${I.heart(lk)}</button><button class="bi" data-a="ad" data-i="${id}" aria-label="Adicionar à playlist">${I.plus}</button><span class="du">${fmt(t.d)}</span></div>`};
+const alCard=id=>{const a=AL[id];return `<div class="cw"><button class="cd" data-a="go" data-i="album-${id}">${cov(a)}<div class="t">${a.n}</div><div class="s">${a.y} · ${ART[a.ar].n}</div></button><button class="fab" data-a="pa" data-i="${id}" aria-label="Tocar ${a.n}">${I.play}</button></div>`};
+const arCard=id=>{const a=ART[id];return `<div class="cw"><button class="cd r" data-a="go" data-i="artista-${id}"><img src="${a.img}" alt=""><div class="t">${a.n}</div><div class="s">Artista</div></button><button class="fab" data-a="par" data-i="${id}" aria-label="Tocar ${a.n}">${I.play}</button></div>`};
+const plRow=p=>`<div class="tr"><button class="li" data-a="go" data-i="playlist-${p.id}" style="flex:1"><div class="cv" style="width:40px;height:40px;font-size:14px;border-radius:4px;flex:none">${I.lib}</div><span>${esc(p.n)}<br><span class="s">Playlist · ${p.t.length} músicas</span></span></button>${p.sys?'':`<button class="bi" data-a="dp" data-i="${p.id}" aria-label="Excluir playlist">${I.x}</button>`}</div>`;
+function side(){const nv=(v,ic,t,x)=>`<button class="nv${S.v===v?' on':''}" data-a="go" data-i="${v}"${x||''}>${ic}${t}</button>`;return nv('inicio',I.home,'Início')+nv('busca',I.search,'Buscar')+nv('biblioteca',I.lib,'Sua Biblioteca')+nv('historico',I.hist,'Histórico')+nv('entre-sinais',I.hand,'Entre Sinais',' style="color:var(--ac)"')+`<div class="lib">${PLS().map(p=>`<button class="li" data-a="go" data-i="playlist-${p.id}"><div class="cv" style="font-size:0">${I.lib}</div>${esc(p.n)}</button>`).join('')}${Object.values(AL).map(a=>`<button class="li" data-a="go" data-i="album-${a.id}">${cov(a)}${a.n}</button>`).join('')}</div>`}
+function inicio(){const h=new Date().getHours(),g=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';return `<h1 style="font-size:28px;font-weight:800">${g}</h1><div class="chips" style="margin-top:16px"><button class="ch on">Tudo</button><button class="ch" data-a="go" data-i="entre-sinais" aria-label="Entre Sinais"><img src="${LOGO}" alt="Entre Sinais"></button></div>
+<div class="tiles">${Object.keys(AL).map(id=>`<button class="tl" data-a="go" data-i="album-${id}">${cov(AL[id])}${AL[id].n}</button>`).join('')}${Object.keys(ART).map(id=>`<button class="tl" data-a="go" data-i="artista-${id}"><img src="${ART[id].img}" alt="">${ART[id].n}</button>`).join('')}</div>
+<div class="bn"><div class="ey">NOVA ABA</div><img src="${LOGO}" alt="Entre Sinais"><p style="margin:0 0 14px;color:#d0d0d0;line-height:1.4">Histórias dos fãs, clipes com Libras e os sinais dos seus artistas.</p><button class="bt" data-a="go" data-i="entre-sinais">Abrir aba</button></div>
+<h2>Álbuns em destaque</h2><div class="grid">${Object.keys(AL).map(alCard).join('')}</div><h2>Artistas</h2><div class="grid">${Object.keys(ART).map(arCard).join('')}</div>
+${LIB.hist.length?`<h2>Tocado recentemente</h2>${LIB.hist.slice(0,5).map((id,i)=>row(id,'hi',i,1)).join('')}`:''}`}
+function busca(){return `<label for="q" class="s" style="display:block;margin-bottom:8px">O que você quer ouvir?</label><input id="q" class="sr" type="search" placeholder="Músicas, artistas, álbuns ou playlists" autocomplete="off" value="${esc(S.q)}"><div class="chips" style="margin-top:16px">${[['all','Tudo'],['tr','Músicas'],['ar','Artistas'],['al','Álbuns'],['pl','Playlists']].map(([k,n])=>`<button class="ch${S.sf===k?' on':''}" data-a="sf" data-i="${k}">${n}</button>`).join('')}</div><div id="res"></div>`}
+function res(){const q=nz(S.q.trim()),f=S.sf,R=$('#res');if(!R)return;if(!q){R.innerHTML='<p class="s" style="margin-top:16px">Digite para buscar músicas, artistas, álbuns e playlists.</p>';return}
+const ar=Object.values(ART).filter(a=>nz(a.n).includes(q)),al=Object.values(AL).filter(a=>nz(a.n).includes(q)||nz(ART[a.ar].n).includes(q)),tr=Object.values(TRK).filter(t=>nz(t.n).includes(q)||nz(ART[t.ar].n).includes(q)),pl=PLS().filter(p=>nz(p.n).includes(q));S.qres=tr.map(t=>t.id);
+const w=k=>f==='all'||f===k;let h='';
+if(f==='all'&&(ar[0]||al[0]||tr[0])){const t=ar[0]?`<button class="cd r" data-a="go" data-i="artista-${ar[0].id}" style="max-width:260px"><img src="${ar[0].img}" alt=""><div class="t2">${ar[0].n}</div><div class="s">Artista</div></button>`:al[0]?`<button class="cd" data-a="go" data-i="album-${al[0].id}" style="max-width:260px">${cov(al[0])}<div class="t2">${al[0].n}</div><div class="s">Álbum · ${ART[al[0].ar].n}</div></button>`:`<button class="cd" data-a="pt" data-c="q" data-i="0" style="max-width:260px">${cov(AL[tr[0].al])}<div class="t2">${tr[0].n}</div><div class="s">Música · ${ART[tr[0].ar].n}</div></button>`;h+=`<h2>Melhor resultado</h2>${t}`}
+if(w('tr')&&tr.length)h+=`<h2>Músicas</h2>${tr.slice(0,f==='tr'?60:5).map((t,i)=>row(t.id,'q',i,1)).join('')}`;
+if(w('ar')&&ar.length)h+=`<h2>Artistas</h2><div class="grid">${ar.map(a=>arCard(a.id)).join('')}</div>`;
+if(w('al')&&al.length)h+=`<h2>Álbuns</h2><div class="grid">${al.map(a=>alCard(a.id)).join('')}</div>`;
+if(w('pl')&&pl.length)h+=`<h2>Playlists</h2>${pl.map(plRow).join('')}`;
+R.innerHTML=h||'<p class="s" style="margin-top:16px">Nada encontrado para essa busca.</p>'}
+function biblioteca(){const T=[['p','Playlists'],['a','Álbuns'],['r','Artistas']];let c='';
+if(S.lt==='p')c=`<div class="row" style="margin-bottom:16px"><input id="nn" class="in" placeholder="Nome da nova playlist" maxlength="40" aria-label="Nome da nova playlist" style="max-width:320px"><button class="bt" data-a="mk">Criar playlist</button></div>${PLS().map(plRow).join('')}`;
+if(S.lt==='a')c=`<div class="grid">${Object.keys(AL).map(alCard).join('')}</div>`;
+if(S.lt==='r')c=`<div class="grid">${Object.keys(ART).map(arCard).join('')}</div>`;
+return `<h1 style="font-size:28px;font-weight:800">Sua Biblioteca</h1><div class="chips" style="margin:16px 0">${T.map(([k,n])=>`<button class="ch${S.lt===k?' on':''}" data-a="lt" data-i="${k}">${n}</button>`).join('')}</div>${c}`}
+function historico(){return `<h1 style="font-size:28px;font-weight:800">Histórico de reprodução</h1>${LIB.hist.length?`<div style="margin:16px 0"><button class="bt o" data-a="clr">Limpar histórico</button></div>${LIB.hist.map((id,i)=>row(id,'hi',i,1)).join('')}`:'<p class="s" style="margin-top:16px">Nada tocado ainda. As músicas que você tocar aparecem aqui.</p>'}`}
+const acts=(play,link,extra)=>`<div class="row" style="margin:20px 0;align-items:center"><button class="bt" data-a="${play[0]}" data-i="${play[1]}" style="min-height:52px">${I.play}&nbsp;Tocar</button>${extra||''}<a class="bt o" href="${link}" target="_blank" rel="noopener">Ouvir no Spotify</a></div>`;
+function album(id){const a=AL[id];if(!a)return inicio();const tot=a.tr.reduce((s,x)=>s+TRK[x].d,0);return `<div class="hero">${cov(a)}<div><div class="s">Álbum</div><h1>${a.n}</h1><div class="s" style="margin-top:8px"><button class="ch" data-a="go" data-i="artista-${a.ar}" style="display:inline-flex;min-height:44px">${ART[a.ar].n}</button> ${a.y} · ${a.tr.length} músicas${a.tr.some(x=>!TRK[x].d)?'':' · '+Math.round(tot/60)+' min'}</div></div></div>${acts(['pa',id],a.url)}${a.tr.map((x,i)=>row(x,'al:'+id,i)).join('')}${a.img?'':'<p class="s" style="margin-top:16px">A capa oficial deste álbum não está disponível aqui; use o botão do Spotify para vê-la.</p>'}`}
+function artista(id){const a=ART[id];if(!a)return inicio();const als=Object.keys(AL).filter(k=>AL[k].ar===id),tl=artTr(id),pls=PLS().filter(p=>p.t.some(t=>TRK[t].ar===id));return `<div class="hero r"><img src="${a.img}" alt="${a.n}"><div><div class="s">Artista</div><h1>${a.n}</h1><div class="s" style="margin-top:8px">${a.g}</div></div></div>${acts(['par',id],a.url)}<h2>Sobre</h2><p style="max-width:720px;line-height:1.6;color:#d0d0d0;margin:0">${a.bio}</p><h2>Músicas</h2>${tl.map((x,i)=>row(x,'ar:'+id,i,1)).join('')}<h2>Discografia</h2><div class="grid">${als.map(alCard).join('')}</div>${a.other.length?`<p class="s" style="margin-top:12px">Outros lançamentos, sem faixas nesta versão: ${a.other.map(o=>o[0]+(o[1]?' ('+o[1]+')':'')).join(', ')}.</p>`:''}<h2>Videoclipes</h2>${a.vid.map(v=>`<div class="tr" style="min-height:64px"><div class="tn"><div class="t">${v[0]}${v[2]?' <span class="lb">LIBRAS</span>':''}</div><div class="s" style="white-space:normal">${v[1]}</div></div>${v[2]?'<button class="bt" data-a="ctk">Ver com Libras</button>':`<a class="bt o" href="https://www.youtube.com/results?search_query=${encodeURIComponent(a.n+' '+v[0]+' clipe oficial')}" target="_blank" rel="noopener">Buscar no YouTube</a>`}</div>`).join('')}<h2>Playlists relacionadas</h2>${pls.map(plRow).join('')}`}
+function playlist(id){const p=plOf(id);if(!p)return inicio();return `<div class="hero"><div class="cv" style="width:200px;height:200px;border-radius:8px;font-size:0;flex:none">${sv(I.lib.replace(/<svg[^>]*>|<\/svg>/g,''),80)}</div><div><div class="s">Playlist</div><h1>${esc(p.n)}</h1><div class="s" style="margin-top:8px">${p.t.length} músicas${p.id==='destaques'?' · seleção de exemplo com faixas dos três álbuns':''}</div></div></div><div class="row" style="margin:20px 0"><button class="bt" data-a="pp" data-i="${id}" style="min-height:52px">${I.play}&nbsp;Tocar</button></div>${p.t.length?p.t.map((x,i)=>row(x,'pl:'+id,i,1)).join(''):'<p class="s">Playlist vazia. Use o botão + em qualquer música para adicioná-la aqui.</p>'}`}
+function entre(){const T=[['s0','Sobre'],['h','Histórias dos fãs'],['c','Clipes em Libras'],['s','Sinais']];let c='';
+if(S.tab==='s0')c=`<div class="bn" style="margin-top:0"><div class="ey">A CAMPANHA</div><p style="line-height:1.6;color:#e0e0e0;margin:8px 0 0;max-width:560px">Entre Sinais é uma campanha de acessibilidade musical. Dentro do app, fãs compartilham suas histórias, os clipes ganham interpretação em Libras e os artistas mostram seus sinais, para que a música também possa ser vista.</p><div class="tabs"><button class="bt" data-a="tab" data-i="c">Ver clipe em Libras</button><button class="bt o" data-a="tab" data-i="s">Ver os sinais</button></div></div><h2>Experiência acessível</h2><p class="s" style="max-width:560px;line-height:1.5;font-size:14px">Ative a experiência acessível no player: músicas com versão em Libras mostram o selo LIBRAS e um atalho para o clipe interpretado. Hoje a música com versão acessível é Aurora, de Jão.</p><button class="ch${LIB.acc?' on':''}" data-a="acc" aria-pressed="${LIB.acc}" style="margin-top:8px">Experiência acessível: ${LIB.acc?'ligada':'desligada'}</button><h2>Músicas com versão acessível</h2>${row('memorias-postumas-5','q',0)}`;
+if(S.tab==='h')c=`<div class="grid">${FANS.map((f,i)=>`<button class="cd v" data-a="story" data-i="${i}"><img src="${f.img}" alt=""><div class="t">${f.n}</div><div class="s">${fmt(f.d)}</div></button>`).join('')}</div>`;
+if(S.tab==='c')c=`<div class="clip"><img src="${CLIP}" alt="Clipe Aurora"><div class="bd"><span class="g">LIBRAS</span><span>CC</span></div><button class="pb" data-a="cplay" aria-label="Reproduzir ou pausar">${S.cp?I.pause:I.play}</button>${S.cl?`<img class="pip${S.cb?' big':''}" src="${INT}" alt="Intérprete de Libras">`:''}${S.cc?'<div class="cap">[LEGENDA DO CLIPE]</div>':''}<div class="pr"><i id="cpf" style="width:${S.cg/60*100}%"></i></div></div><div class="t2">Aurora</div><div class="s">Jão · com intérprete de Libras</div><div class="tabs"><button class="ch${S.cl?' on':''}" data-a="cl" aria-pressed="${S.cl}">Janela de Libras</button><button class="ch${S.cc?' on':''}" data-a="cc" aria-pressed="${S.cc}">Legenda (CC)</button><button class="ch${S.cb?' on':''}" data-a="cb" aria-pressed="${S.cb}">Janela maior</button><button class="bt" data-a="ctk">${I.play}&nbsp;Tocar a música</button></div>`;
+if(S.tab==='s'){const a=Object.values(ART)[S.sel];c=`<div class="row">${Object.values(ART).map((x,i)=>`<button class="av${i===S.sel?' on':''}" data-a="artist" data-i="${i}"><img src="${x.img}" alt="">${x.n}</button>`).join('')}</div><div class="clip" style="margin-top:20px"><img src="${a.img}" alt="${a.n}"><div class="sc"></div><div class="bd"><span class="g">LIBRAS</span></div><button class="pb" data-a="sgp" aria-label="Reproduzir ou pausar o sinal">${S.sgp?I.pause:I.play}</button></div><div class="t2">Sinal de ${a.n}</div><div class="s">${S.sgp?'Reproduzindo o sinal…':'Toque no play para ver o sinal.'}</div><div class="tabs"><button class="bt o" data-a="go" data-i="artista-${a.id}">Abrir perfil</button></div>`}
+return `<img src="${LOGO}" alt="Entre Sinais" style="height:40px;width:auto;max-width:100%;display:block"><p style="color:#d0d0d0;margin:10px 0 0">Histórias, clipes e sinais: a música também se vê.</p><div class="tabs" role="tablist">${T.map(([k,n])=>`<button class="ch${S.tab===k?' on':''}" role="tab" aria-selected="${S.tab===k}" data-a="tab" data-i="${k}">${n}</button>`).join('')}</div><div style="margin-top:20px">${c}</div>`}
+function bar(){const t=cur(),tot=t?(t.d||180):0,al=t&&AL[t.al];return `<div class="np">${t?cov(al):'<div class="cv" style="width:52px;height:52px;border-radius:4px;flex:none"></div>'}<div class="tx"><div style="font-weight:600">${t?t.n:'Nenhuma música'}</div><div class="s">${t?ART[t.ar].n:'Escolha algo para tocar'}</div></div>${t?`<button class="bi${LIB.liked.includes(t.id)?' on':''}" data-a="lk" data-i="${t.id}" aria-label="Curtir">${I.heart(LIB.liked.includes(t.id))}</button>`:''}</div>
+<div class="cn"><div class="rw"><button class="bi xs${P.sh?' on':''}" data-a="bsh" aria-label="Aleatório" aria-pressed="${P.sh}">${I.shuf}</button><button class="bi" data-a="bprev" aria-label="Anterior">${I.prev}</button><button class="pp" data-a="bplay" aria-label="Reproduzir ou pausar">${P.pl?I.pause:I.play}</button><button class="bi" data-a="bnext" aria-label="Próxima">${I.next}</button><button class="bi xs${P.rp!=='off'?' on':''}" data-a="brp" aria-label="Repetir: ${P.rp==='off'?'desligado':P.rp==='all'?'tudo':'uma'}">${I.rep}${P.rp==='one'?'<span style="font-size:10px;font-weight:800">1</span>':''}</button></div><div class="pg"><span id="tm">${fmt(P.t)}</span><div class="bar" data-a="seek" role="slider" aria-label="Progresso" aria-valuemin="0" aria-valuemax="${tot}" aria-valuenow="${P.t}"><b><i id="pf" style="width:${tot?P.t/tot*100:0}%"></i></b></div><span>${t?fmt(t.d):'0:00'}</span></div></div>
+<div class="rt"><div>${LIB.acc&&t&&t.acc?'<button class="bt" data-a="ctk" style="min-height:36px;padding:0 12px;font-size:12px">Ver em Libras</button>':''}</div><div>Prévia simulada, sem áudio<br>${t?`<a href="${al.url}" target="_blank" rel="noopener" style="color:var(--ac)">Ouvir no Spotify</a>`:''}</div><button class="bi${LIB.acc?' on':''}" data-a="acc" aria-label="Experiência acessível em Libras" aria-pressed="${LIB.acc}">${I.hand}</button></div>`}
+function story(){if(S.st<0)return '';const f=FANS[S.st];return `<div class="ov" data-a="ovc"><div class="ph" role="dialog" aria-label="História de ${f.n}"><img src="${f.img}" alt=""><div class="sc"></div><button class="ib" data-a="sc" aria-label="Fechar" style="position:absolute;left:12px;top:12px">${I.x}</button><button class="ib pb" data-a="sp" aria-label="Reproduzir ou pausar" style="margin:-22px 0 0 -22px;width:44px;height:44px">${S.sp?I.pause:I.play}</button><button class="ib" data-a="sprev" aria-label="Anterior" style="position:absolute;left:12px;top:50%">${I.prev}</button><button class="ib" data-a="snext" aria-label="Próxima" style="position:absolute;right:12px;top:50%">${I.next}</button><div style="position:absolute;left:16px;bottom:64px;right:16px"><div style="font-size:20px;font-weight:800">${f.n}</div><div style="margin-top:6px;color:#e0e0e0">[LEGENDA DA HISTÓRIA]</div><div style="margin-top:8px;color:var(--ac);font-weight:600;font-size:12px">#EntreSinais</div></div><div class="pr" style="bottom:40px;left:16px;right:16px;border-radius:2px"><i id="spf" style="width:${S.sg/f.d*100}%"></i></div><div style="position:absolute;left:16px;bottom:14px;font-size:12px"><span id="stm">${fmt(S.sg)}</span> / ${fmt(f.d)}</div></div></div>`}
+function dlg(){if(!S.dlg)return '';const t=TRK[S.dlg],us=Object.entries(LIB.pls);return `<div class="ov" data-a="ovc"><div class="dg" role="dialog" aria-label="Adicionar à playlist"><div style="font-weight:800;font-size:18px">Adicionar a uma playlist</div><div class="s" style="margin:4px 0 12px">${t.n}</div>${us.map(([id,p])=>`<button class="li" data-a="addpl" data-i="${id}">${esc(p.n)}${p.t.includes(t.id)?' · já adicionada':''}</button>`).join('')||'<p class="s">Você ainda não tem playlists.</p>'}<div class="row" style="margin-top:12px"><input id="np" class="in" placeholder="Nova playlist" maxlength="40" aria-label="Nome da nova playlist"><button class="bt" data-a="newpl">Criar e adicionar</button></div><button class="bt o" data-a="dc" style="margin-top:12px">Fechar</button></div></div>`}
+function view(){const v=S.v;if(v==='busca')return busca();if(v==='biblioteca')return biblioteca();if(v==='historico')return historico();if(v==='entre-sinais')return entre();if(v.startsWith('album-'))return album(v.slice(6));if(v.startsWith('artista-'))return artista(v.slice(8));if(v.startsWith('playlist-'))return playlist(v.slice(9));return inicio()}
+function render(){const M=$('#main'),sc=M.scrollTop;$('#side').innerHTML=side();M.innerHTML=view();M.scrollTop=sc;$('#bar').innerHTML=bar();$('#ov').innerHTML=story()+dlg();if(S.v==='busca')res()}
+function nextS(d){S.st=(S.st+d+FANS.length)%FANS.length;S.sg=0;S.sp=true}
+function setV(v){S.v=v;if(location.hash!=='#'+v)location.hash=v}
+function act(a,i,e,ev){switch(a){
+case 'go':setV(i);$('#main').scrollTop=0;break;
+case 'tab':S.tab=i;break;
+case 'artist':S.sel=+i;S.sgp=false;break;
+case 'story':S.st=+i;S.sg=0;S.sp=true;break;
+case 'sc':S.st=-1;S.sp=false;break;case 'sp':S.sp=!S.sp;break;case 'sprev':nextS(-1);break;case 'snext':nextS(1);break;
+case 'cplay':S.cp=!S.cp;break;case 'cl':S.cl=!S.cl;break;case 'cc':S.cc=!S.cc;break;case 'cb':S.cb=!S.cb;break;case 'sgp':S.sgp=!S.sgp;break;
+case 'ctk':S.tab='c';setV('entre-sinais');P.q=ALTK();startAt(4);break;
+case 'pt':playCtx(e.dataset.c,+i);break;
+case 'pa':playCtx('al:'+i,0);break;case 'par':playCtx('ar:'+i,0);break;case 'pp':playCtx('pl:'+i,0);break;
+case 'bplay':if(!P.q.length)playCtx('al:memorias-postumas',0);else P.pl=!P.pl;break;
+case 'bnext':if(!P.q.length)playCtx('al:memorias-postumas',0);else{const r=P.rp;P.rp=r==='one'?'all':r;nx(false);P.rp=r}break;
+case 'bprev':pv();break;case 'bsh':P.sh=!P.sh;break;case 'brp':P.rp=P.rp==='off'?'all':P.rp==='all'?'one':'off';break;
+case 'seek':{const t=cur();if(t){const r=e.getBoundingClientRect();P.t=Math.floor(Math.min(1,Math.max(0,(ev.clientX-r.left)/r.width))*(t.d||180))}break}
+case 'lk':{const k=LIB.liked.indexOf(i);if(k<0)LIB.liked.unshift(i);else LIB.liked.splice(k,1);save();break}
+case 'ad':S.dlg=i;break;case 'dc':S.dlg='';break;
+case 'addpl':{const p=LIB.pls[i];if(p&&!p.t.includes(S.dlg))p.t.push(S.dlg);save();S.dlg='';break}
+case 'newpl':{const n=($('#np').value||'').trim().slice(0,40)||'Nova playlist',id='u'+Date.now().toString(36);LIB.pls[id]={n,t:[S.dlg]};save();S.dlg='';break}
+case 'mk':{const n=($('#nn').value||'').trim().slice(0,40)||'Nova playlist';LIB.pls['u'+Date.now().toString(36)]={n,t:[]};save();break}
+case 'dp':delete LIB.pls[i];save();if(S.v==='playlist-'+i)setV('biblioteca');break;
+case 'clr':LIB.hist=[];save();break;
+case 'acc':LIB.acc=!LIB.acc;save();break;
+case 'sf':S.sf=i;break;case 'lt':S.lt=i;break;
+}render()}
+const ALTK=()=>AL['memorias-postumas'].tr.slice();
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;if(b.dataset.a==='ovc'){if(e.target===b){S.st=-1;S.sp=false;S.dlg='';render()}return}act(b.dataset.a,b.dataset.i,b,e)});
+document.addEventListener('input',e=>{if(e.target.id==='q'){S.q=e.target.value;res()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(S.st>=0||S.dlg)){S.st=-1;S.sp=false;S.dlg='';render()}});
+function route(){const h=location.hash.slice(1);S.v=h||'inicio'}
+window.addEventListener('hashchange',()=>{route();render();$('#main').scrollTop=0});
+setInterval(()=>{let r=false;const t=cur();
+if(P.pl&&t){P.t++;if(P.t>=(t.d||180)){nx(true);r=true}}
+if(S.sp&&S.st>=0){S.sg++;if(S.sg>=FANS[S.st].d){nextS(1);r=true}}
+if(S.cp){S.cg++;if(S.cg>=60){S.cg=0;S.cp=false;r=true}}
+if(r)return render();
+const tt=cur();if($('#pf')&&tt){$('#pf').style.width=P.t/(tt.d||180)*100+'%';$('#tm').textContent=fmt(P.t)}
+if($('#cpf'))$('#cpf').style.width=S.cg/60*100+'%';
+if($('#spf')&&S.st>=0){$('#spf').style.width=S.sg/FANS[S.st].d*100+'%';$('#stm').textContent=fmt(S.sg)}
+},1000);
+route();render();
+</script>
+</body>
+</html>
